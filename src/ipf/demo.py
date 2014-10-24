@@ -5,6 +5,7 @@ Version: 2014.07.17
 """
 
 from fakeutils import *
+from lss.fault import FlattenerV
 s1,s2,s3 = getSamplings()
 n1,n2,n3 = s1.count,s2.count,s3.count
 
@@ -26,6 +27,14 @@ fs1file = "fs1" # fault slip (1st component)
 fs2file = "fs2" # fault slip (2nd component)
 fs3file = "fs3" # fault slip (3rd component)
 fskbase = "fsk" # fault skin (basename only)
+u1file = "u1" # normal vector (1st component)
+u2file = "u2" # normal vector (2nd component)
+u3file = "u3" # normal vector (3rd component)
+epfile = "ep" # eigenvalue-derived planarity
+r1file = "r1" # unfolding shifts (1st component)
+r2file = "r2" # unfolding shifts (2nd component)
+r3file = "r3" # unfolding shifts (3rd component)
+hxfile = "hx" # unfolded image 
 
 # These parameters control the scan over fault strikes and dips.
 # See the class FaultScanner for more information.
@@ -59,6 +68,45 @@ def main(args):
   goSmooth()
   goSkin()
   goSlip()
+
+  goNormals()
+  goUnfold()
+
+def goNormals():
+  print 'goNormals ...'
+  u1 = zerofloat(n1,n2,n3)
+  u2 = zerofloat(n1,n2,n3)
+  u3 = zerofloat(n1,n2,n3)
+  ep = zerofloat(n1,n2,n3)
+  gx = readImage(gxfile)
+  lof = LocalOrientFilter(4.0,1.0)
+  lof.applyForNormalPlanar(gx,u1,u2,u3,ep)
+  writeImage(u1file,u1)
+  writeImage(u2file,u2)
+  writeImage(u3file,u3)
+  writeImage(epfile,ep)
+
+def goUnfold():
+  print 'goUnfold ...'
+  hx = zerofloat(n1,n2,n3)
+  gx = readImage(gxfile)
+  u1 = readImage(u1file)
+  u2 = readImage(u2file)
+  u3 = readImage(u3file)
+  ep = readImage(epfile)
+  pow(ep,8.0,ep)
+  flattener = FlattenerV(6.0,6.0,6.0)
+  skins = readSkins(fskbase)
+  r = flattener.findShifts(u1,u2,u3,ep,skins)
+  #r = flattener.findShifts(u1,u2,u3,ep)
+  flattener.applyShifts(r,gx,hx)
+  writeImage(r1file,r[0])
+  writeImage(r2file,r[1])
+  writeImage(r3file,r[2])
+  writeImage(hxfile,hx)
+  hmin,hmax,hmap = -3.0,3.0,ColorMap.GRAY
+  plot3(hx,cmin=hmin,cmax=hmax,cmap=hmap,clab="Amplitude",png="hx")
+  plot3(r[0],cmap=ColorMap.JET,clab="Vertical shift",png="r1")
 
 def goFakeData():
   #sequence = 'A' # 1 episode of faulting only
