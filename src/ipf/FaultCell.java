@@ -51,6 +51,14 @@ public class FaultCell implements Serializable {
   }
 
   /**
+   * Gets the slip vector (s1,s2,s3) for this cell.
+   * @return array {s1,s2,s3} of components of the slip vector.
+   */
+  public float[] getS() {
+    return new float[]{s1,s2,s3};
+  }
+
+  /**
    * Gets the coordinates (x1,x2,x3) of the location for this cell.
    * @return array {x1,x2,x3} of coordinates.
    */

@@ -61,16 +61,24 @@ pngDir = None
 # Processing begins here. When experimenting with one part of this demo, we
 # can comment out earlier parts that have already written results to files.
 def main(args):
-  goFakeData()
-  goSlopes()
-  goScan()
-  goThin()
-  goSmooth()
-  goSkin()
-  goSlip()
+  #goFakeData()
+  #goSlopes()
+  #goScan()
+  #goThin()
+  #goSmooth()
+  #goSkin()
+  #goSlip()
 
-  goNormals()
-  goUnfold()
+  #goNormals()
+  #goUnfold()
+
+  test()
+
+def test():
+  flattener = FlattenerV(6.0,6.0,6.0)
+  skins = readSkins(fskbase)
+  y = flattener.imageOfIndices(skins,n1,n2,n3)
+  plot3(y,cmap=ColorMap.JET,clab="Indices")
 
 def goNormals():
   print 'goNormals ...'
